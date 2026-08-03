@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fast Lane Traffic School — Florida Driver Improvement</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#0d1b2a; --navy2:#132a41; --amber:#ffb703; --amber2:#fb8500;
+    --green:#2a9d3f; --green2:#1e7a2e; --red:#e63946; --ink:#1b2733;
+    --muted:#6b7a8d; --line:#e3e8ef; --bg:#f5f7fa; --white:#fff;
+    --radius:14px; --shadow:0 6px 24px rgba(13,27,42,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+  a{color:var(--amber2);text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:700;font-size:15px;padding:12px 20px;transition:.15s}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .btn-primary{background:var(--amber);color:var(--navy)}
+  .btn-primary:hover:not(:disabled){background:var(--amber2);color:#fff}
+  .btn-green{background:var(--green);color:#fff}
+  .btn-green:hover:not(:disabled){background:var(--green2)}
+  .btn-ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+  .btn-ghost:hover{background:rgba(255,255,255,.1)}
+  .btn-outline{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-outline:hover{border-color:var(--amber2);color:var(--amber2)}
+  input,select{font-family:inherit;font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;width:100%;background:#fff}
+  input:focus,select:focus{outline:none;border-color:var(--amber)}
+  label{display:block;font-weight:600;font-size:13px;margin-bottom:6px;color:var(--ink)}
+  .field{margin-bottom:16px}
+  .container{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* header */
+  header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.3px;color:#fff;cursor:pointer}
+  .logo .badge{width:34px;height:34px;background:var(--amber);border-radius:9px;display:grid;place-items:center;color:var(--navy);font-size:20px}
+  .navlinks{display:flex;align-items:center;gap:8px}
+  .navlinks .who{font-size:13px;color:#9fb3c8;margin-right:6px}
+
+  /* hero */
+  .hero{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:70px 0 80px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;background:repeating-linear-gradient(90deg,var(--amber) 0 40px,var(--navy) 40px 80px)}
+  .hero h1{font-size:44px;line-height:1.1;letter-spacing:-1px;max-width:640px}
+  .hero p.sub{font-size:19px;color:#c7d6e6;margin:18px 0 28px;max-width:560px}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .pill{display:inline-block;background:rgba(255,183,3,.15);color:var(--amber);font-weight:700;font-size:13px;padding:6px 14px;border-radius:999px;margin-bottom:20px}
+  .trust{display:flex;gap:26px;margin-top:38px;flex-wrap:wrap}
+  .trust div{font-size:13px;color:#9fb3c8}
+  .trust b{display:block;font-size:26px;color:#fff}
+
+  section.pad{padding:56px 0}
+  h2.sec{font-size:30px;letter-spacing:-.5px;margin-bottom:8px}
+  .sec-sub{color:var(--muted);margin-bottom:32px;font-size:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow)}
+  .card .ic{font-size:30px;margin-bottom:12px}
+  .card h3{font-size:18px;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:14px}
+
+  .price-wrap{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+  .price{background:#fff;border:2px solid var(--line);border-radius:var(--radius);padding:30px;width:300px;text-align:center;box-shadow:var(--shadow)}
+  .price.feat{border-color:var(--amber)}
+  .price .tag{font-size:13px;font-weight:700;color:var(--amber2);text-transform:uppercase;letter-spacing:.5px}
+  .price .amt{font-size:46px;font-weight:800;margin:8px 0}
+  .price .amt span{font-size:16px;color:var(--muted);font-weight:600}
+  .price ul{list-style:none;text-align:left;margin:18px 0}
+  .price li{padding:7px 0;font-size:14px;border-bottom:1px solid var(--line)}
+  .price li::before{content:"✓ ";color:var(--green);font-weight:800}
+
+  footer{background:var(--navy);color:#9fb3c8;padding:36px 0;font-size:13px;text-align:center}
+  footer a{color:var(--amber)}
+
+  /* app views */
+  .view{min-height:calc(100vh - 66px)}
+  .auth-wrap{max-width:440px;margin:50px auto;padding:0 20px}
+  .auth-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow)}
+  .auth-card h2{font-size:26px;margin-bottom:6px}
+  .auth-card .switch{text-align:center;margin-top:18px;font-size:14px;color:var(--muted)}
+  .tabbar{display:flex;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:24px}
+  .tabbar button{flex:1;background:transparent;color:var(--muted);padding:10px}
+  .tabbar button.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+  /* dashboard */
+  .dash{display:grid;grid-template-columns:280px 1fr;gap:26px;padding:30px 0}
+  .side{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;height:fit-content;position:sticky;top:90px}
+  .prog-ring{position:relative;width:120px;height:120px;margin:0 auto 14px}
+  .prog-num{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;font-weight:800}
+  .mod-nav{list-style:none}
+  .mod-nav li{padding:11px 12px;border-radius:9px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:9px;margin-bottom:3px}
+  .mod-nav li:hover{background:var(--bg)}
+  .mod-nav li.active{background:var(--navy);color:#fff}
+  .mod-nav li.done .dot{background:var(--green)}
+  .mod-nav li.locked{opacity:.5;cursor:not-allowed}
+  .dot{width:20px;height:20px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-size:11px;flex-shrink:0;color:#fff;font-weight:700}
+  .main-panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);min-height:500px}
+  .lesson h1{font-size:28px;margin-bottom:6px;letter-spacing:-.5px}
+  .lesson .meta{color:var(--muted);font-size:13px;margin-bottom:22px;display:flex;gap:16px;flex-wrap:wrap}
+  .lesson-body{font-size:16px}
+  .lesson-body h3{margin:22px 0 8px;font-size:19px}
+  .lesson-body p{margin-bottom:14px}
+  .lesson-body ul{margin:0 0 14px 22px}
+  .lesson-body li{margin-bottom:6px}
+  .callout{background:#fff8e6;border-left:4px solid var(--amber);padding:14px 18px;border-radius:8px;margin:18px 0;font-size:15px}
+  .lesson-foot{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding-top:22px;border-top:1px solid var(--line)}
+  .timer-note{font-size:13px;color:var(--muted)}
+  .timer-note b{color:var(--ink)}
+
+  /* quiz */
+  .quiz h1{font-size:26px;margin-bottom:20px}
+  .q{margin-bottom:22px;padding:20px;border:1px solid var(--line);border-radius:12px}
+  .q .qtext{font-weight:700;margin-bottom:12px}
+  .opt{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1.5px solid var(--line);border-radius:9px;margin-bottom:8px;cursor:pointer;font-size:15px}
+  .opt:hover{border-color:var(--amber)}
+  .opt.sel{border-color:var(--amber);background:#fff8e6}
+  .opt.correct{border-color:var(--green);background:#e9f7ec}
+  .opt.wrong{border-color:var(--red);background:#fdeaec}
+  .opt input{width:auto}
+  .quiz-result{text-align:center;padding:30px}
+  .quiz-result .score{font-size:56px;font-weight:800}
+  .pass{color:var(--green)} .fail{color:var(--red)}
+
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px}
+  .stat .n{font-size:30px;font-weight:800}
+  .stat .l{font-size:13px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  th,td{text-align:left;padding:13px 16px;font-size:14px;border-bottom:1px solid var(--line)}
+  th{background:var(--navy);color:#fff;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+  tr:last-child td{border-bottom:none}
+  .chip{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+  .chip.g{background:#e9f7ec;color:var(--green2)} .chip.a{background:#fff8e6;color:var(--amber2)} .chip.r{background:#fdeaec;color:var(--red)}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(13,27,42,.6);display:grid;place-items:center;z-index:100;padding:20px}
+  .modal{background:#fff;border-radius:var(--radius);padding:32px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .modal h2{font-size:24px;margin-bottom:6px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:14px 24px;border-radius:10px;z-index:200;font-weight:600;box-shadow:var(--shadow)}
+  .banner{background:#fff8e6;border:1px solid var(--amber);border-radius:12px;padding:16px 20px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  .cert-done{text-align:center;padding:40px 20px}
+  .cert-done .big{font-size:64px}
+  .hide{display:none!important}
+  @media(max-width:820px){
+    .dash{grid-template-columns:1fr}.side{position:static}
+    .grid3{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr 1fr}
+    .hero h1{font-size:32px}.row2{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+/* ============================================================
+   FAST LANE TRAFFIC SCHOOL — self-contained LMS (MVP)
+   Persistence: localStorage.  Certificates: jsPDF.
+   Provider of record for FL BDI credit: American Safety Council.
+   ============================================================ */
+
+const STORE_KEY = "flts_data_v1";
+const PROVIDER = "American Safety Council";
+const SCHOOL = "Fast Lane Traffic School";
+const LOGO = "data:image/jpeg;base64,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";
+const IDLE_LOGOUT_MIN = 20; // kiosk auto-logout after inactivity (shared office computer)
+// Classroom / instructor resources (Google Drive — instructor account access)
+const CLASS_RESOURCES = [
+  {label:"SDAPP 4-Hour BDI slide deck (PDF)", url:"https://drive.google.com/file/d/1gWou8Ye6h8VNn4Dt2W7bQNySIw8H1HS5/view"},
+  {label:"BDI module video — Module 1", url:"https://drive.google.com/file/d/1uJL5ZKBA0_3w8HgUn90dHlyhat39gCfP/view"},
+  {label:"BDI Avatar Scripts (DOCX)", url:"https://drive.google.com/file/d/1isdEP78qhWue3Lkl9gG7LoyFiM0ARWs8/view"},
+  {label:"Full 2025 SDAPP BDI 4HR folder", url:"https://drive.google.com/drive/folders/1lvhRqsbZymOOHY9evI3TQk9vN9Eyqywr"},
+];
+
+/* ---------- Course content ---------- */
+const COURSE = {
+  id:"fl-bdi",
+  title:"Florida Basic Driver Improvement (BDI) — 4-Hour Course",
+  price:24.95,
+  stateReqMinutes:240,           // real FL BDI requirement
+  passScore:80,                  // % to pass each quiz + final
+  modules:[
+    {
+      id:"m1", title:"Florida Traffic Laws & Your Responsibility",
+      minMinutes:1, // demo value; set to 60 for production per-module pacing
+      body:`
+        <p>Welcome to your Florida Basic Driver Improvement course. This course is designed to refresh your knowledge of safe driving practices and Florida traffic law. Completing it can satisfy a court requirement, remove points from a citation, or lower your insurance costs.</p>
+        <h3>Points, Penalties & Why This Matters</h3>
+        <p>Florida assigns points to your license for moving violations. Accumulate too many and your license can be suspended: 12 points in 12 months = 30-day suspension; 18 points in 18 months = 3-month suspension; 24 points in 36 months = 1-year suspension.</p>
+        <ul>
+          <li>Speeding (up to 15 mph over): 3 points</li>
+          <li>Speeding (16+ mph over): 4 points</li>
+          <li>Running a red light: 4 points</li>
+          <li>Careless driving: 3 points</li>
+          <li>Crash caused by moving violation: 4 points</li>
+        </ul>
+        <div class="callout"><b>Elect the course:</b> When eligible, electing this course on a non-criminal moving violation keeps points off your record — protecting your license and your insurance rate.</div>
+        <h3>Right-of-Way Basics</h3>
+        <p>Most intersection crashes come from right-of-way errors. Yield to pedestrians in crosswalks, to vehicles already in a roundabout, and to the driver on your right at a 4-way stop when you arrive at the same time. Never assume another driver will yield — confirm it.</p>`,
+      quiz:[
+        {q:"In Florida, how many points in a 12-month period results in a 30-day license suspension?",
+         opts:["6 points","12 points","18 points","24 points"],a:1},
+        {q:"Electing a Basic Driver Improvement course on an eligible citation primarily helps you by:",
+         opts:["Erasing the ticket cost","Keeping points off your driving record","Removing the need to appear in court forever","Raising your speed limit"],a:1},
+        {q:"At a 4-way stop where two cars arrive at the same time, who has the right-of-way?",
+         opts:["The faster car","The larger vehicle","The driver on the right","The car turning left"],a:2},
+      ]
+    },
+    {
+      id:"m2", title:"Defensive Driving & Crash Prevention",
+      minMinutes:1,
+      body:`
+        <h3>The Space Cushion</h3>
+        <p>Most crashes are preventable. The single most effective habit is maintaining space around your vehicle. Use the <b>3-second following rule</b>: pick a fixed point, and when the car ahead passes it, you should not reach it before counting three seconds. Double it to 4–6 seconds in rain, fog, or at night.</p>
+        <h3>Scanning & the SIPDE Process</h3>
+        <ul>
+          <li><b>S</b>can the road 12–15 seconds ahead</li>
+          <li><b>I</b>dentify hazards and changing conditions</li>
+          <li><b>P</b>redict how they might affect you</li>
+          <li><b>D</b>ecide on an action</li>
+          <li><b>E</b>xecute the maneuver smoothly</li>
+        </ul>
+        <div class="callout"><b>Speed and stopping:</b> Doubling your speed roughly quadruples your stopping distance. Speed is a factor in nearly one-third of fatal crashes.</div>
+        <h3>Managing Intersections</h3>
+        <p>Intersections are where paths cross, so they carry the highest crash risk. Cover your brake approaching them, look left-right-left, and never rely solely on a green light — check that cross traffic has actually stopped before you proceed.</p>`,
+      quiz:[
+        {q:"What is the minimum recommended following distance under ideal conditions?",
+         opts:["1 second","3 seconds","Half a car length","10 seconds"],a:1},
+        {q:"In the SIPDE process, what does the 'P' stand for?",
+         opts:["Park","Predict","Pass","Prepare"],a:1},
+        {q:"If you double your driving speed, your stopping distance approximately:",
+         opts:["Stays the same","Doubles","Quadruples","Is cut in half"],a:2},
+      ]
+    },
+    {
+      id:"m3", title:"Impaired & Distracted Driving",
+      minMinutes:1,
+      body:`
+        <h3>Impairment</h3>
+        <p>In Florida, a driver with a blood alcohol concentration (BAC) of <b>0.08% or higher</b> is legally impaired. For drivers under 21, the limit is 0.02% under the Zero Tolerance law. Alcohol is a depressant — it slows reaction time, impairs judgment, and reduces coordination long before you feel "drunk."</p>
+        <ul>
+          <li>There is no way to sober up quickly — only time removes alcohol from your system.</li>
+          <li>Prescription and over-the-counter drugs can impair you just as seriously.</li>
+          <li>A DUI conviction carries fines, license revocation, and possible jail.</li>
+        </ul>
+        <h3>Distraction</h3>
+        <p>Distracted driving takes three forms: <b>visual</b> (eyes off road), <b>manual</b> (hands off wheel), and <b>cognitive</b> (mind off task). Texting involves all three. At 55 mph, reading a text takes your eyes off the road long enough to travel the length of a football field.</p>
+        <div class="callout"><b>Florida law:</b> Texting while driving is a primary offense, and handheld device use is banned in school and work zones. Put the phone away before you drive.</div>`,
+      quiz:[
+        {q:"What is the legal BAC limit for drivers 21 and over in Florida?",
+         opts:["0.02%","0.05%","0.08%","0.10%"],a:2},
+        {q:"Texting while driving is dangerous because it involves which types of distraction?",
+         opts:["Only visual","Only manual","Visual, manual, and cognitive","Only cognitive"],a:2},
+        {q:"The only reliable way to remove alcohol from your body is:",
+         opts:["Coffee","A cold shower","Time","Eating a large meal"],a:2},
+      ]
+    },
+    {
+      id:"m4", title:"Sharing the Road & Adverse Conditions",
+      minMinutes:1,
+      body:`
+        <h3>Vulnerable Road Users</h3>
+        <p>Motorcyclists, bicyclists, and pedestrians have the same rights to the road but far less protection. Florida law requires drivers to give cyclists at least <b>3 feet</b> of clearance when passing. Always look twice for motorcycles — they are small and easy to miss in mirrors and at intersections.</p>
+        <h3>Adverse Weather</h3>
+        <ul>
+          <li><b>Rain:</b> Roads are most slippery in the first 10–15 minutes as oil rises. Slow down and increase following distance.</li>
+          <li><b>Hydroplaning:</b> Ease off the gas — do not brake hard — and steer straight until tires regain grip.</li>
+          <li><b>Fog:</b> Use low beams, not high beams, which reflect back and reduce visibility.</li>
+        </ul>
+        <div class="callout"><b>Move Over Law:</b> Florida requires you to move over a lane — or slow to 20 mph below the limit — for stopped emergency, utility, and sanitation vehicles with flashing lights.</div>
+        <h3>Work & School Zones</h3>
+        <p>Fines are doubled in active work zones and school zones. Watch for reduced limits, workers, children, and sudden stops. Patience in these zones saves lives.</p>`,
+      quiz:[
+        {q:"How much clearance must a Florida driver give when passing a bicyclist?",
+         opts:["1 foot","3 feet","6 feet","No requirement"],a:1},
+        {q:"If your vehicle begins to hydroplane, you should:",
+         opts:["Brake hard immediately","Accelerate to regain control","Ease off the gas and steer straight","Turn sharply toward the shoulder"],a:2},
+        {q:"Under Florida's Move Over Law, if you cannot safely change lanes you must:",
+         opts:["Stop completely","Slow to 20 mph below the speed limit","Honk continuously","Maintain your speed"],a:1},
+      ]
+    }
+  ],
+  finalExam:{
+    passScore:80,
+    questions:[
+      {q:"Accumulating 18 points within 18 months results in what suspension?",
+       opts:["30 days","3 months","6 months","1 year"],a:1},
+      {q:"The recommended following distance in good conditions is at least:",
+       opts:["1 second","3 seconds","Half a car length","6 car lengths"],a:1},
+      {q:"Florida's Zero Tolerance BAC limit for drivers under 21 is:",
+       opts:["0.00%","0.02%","0.05%","0.08%"],a:1},
+      {q:"When passing a cyclist, Florida law requires a clearance of at least:",
+       opts:["1 foot","2 feet","3 feet","5 feet"],a:2},
+      {q:"In fog you should use:",
+       opts:["High beams","Low beams","Hazard lights only","No lights"],a:1},
+      {q:"The 'E' in the SIPDE defensive-driving process stands for:",
+       opts:["Estimate","Evaluate","Execute","Escape"],a:2},
+      {q:"Fines in active work zones and school zones are typically:",
+       opts:["Waived","Cut in half","Doubled","Unchanged"],a:2},
+      {q:"If you begin to hydroplane, the correct action is to:",
+       opts:["Brake firmly","Ease off the gas and steer straight","Accelerate","Turn on cruise control"],a:1},
+      {q:"Texting while driving in Florida is:",
+       opts:["Legal on highways","A primary offense","Only illegal at night","Allowed at red lights"],a:1},
+      {q:"At a 4-way stop, vehicles arriving at the same time yield to:",
+       opts:["The vehicle on the left","The vehicle on the right","The larger vehicle","Whoever honks first"],a:1},
+    ]
+  }
+};
+
+/* ---------- Data layer ---------- */
+function load(){
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(STORE_KEY)); }catch(e){}
+  if(!d){ d = { users:[], session:null, settings:{ enforceStateTime:false } }; save(d); }
+  if(!d.settings) d.settings = { enforceStateTime:false };
+  return d;
+}
+function save(d){ localStorage.setItem(STORE_KEY, JSON.stringify(d)); }
+let DB = load();
+
+function currentUser(){ return DB.users.find(u=>u.email===DB.session) || null; }
+function persist(){ save(DB); }
+
+function newEnrollment(){
+  return {
+    paid:false, amount:0, paidAt:null, payMethod:null,
+    classType:"home", // "home" (at-home online) or "office" (in-person class)
+    modules:{}, // id -> {lessonSec, quizPassed, quizScore}
+    finalScore:null, finalPassed:false,
+    completedAt:null, certNo:null
+  };
+}
+
+/* ---------- Router ---------- */
+let route = "home";
+let ctx = {};
+function go(r, c={}){ route=r; ctx=c; render(); window.scrollTo(0,0); }
+
+/* ---------- Helpers ---------- */
+function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function money(n){ return "$"+n.toFixed(2); }
+function toast(msg){
+  const t=document.createElement("div"); t.className="toast"; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2600);
+}
+function fmtDate(ts){ return new Date(ts).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}); }
+function courseProgress(u){
+  const e=u.enroll; let done=0;
+  COURSE.modules.forEach(m=>{ if(e.modules[m.id]&&e.modules[m.id].quizPassed) done++; });
+  const total=COURSE.modules.length+1; // +final
+  if(e.finalPassed) done++;
+  return Math.round((done/total)*100);
+}
+function totalMinutes(u){
+  let s=0; Object.values(u.enroll.modules).forEach(m=> s+=(m.lessonSec||0));
+  return Math.floor(s/60);
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render(){
+  const root=document.getElementById("root");
+  root.innerHTML = headerHTML() + viewHTML();
+  bind();
+}
+
+function headerHTML(){
+  const u=currentUser();
+  let right="";
+  if(route==="admin"||route==="adminLogin"){
+    right = `<div class="navlinks"><button class="btn-ghost" data-go="home">← Public site</button></div>`;
+  } else if(u){
+    right = `<div class="navlinks">
+      <span class="who">Hi, ${esc(u.name.split(" ")[0])}</span>
+      <button class="btn-ghost" data-go="dashboard">My Course</button>
+      <button class="btn-ghost" data-act="logout">Log out</button>
+    </div>`;
+  } else {
+    right = `<div class="navlinks">
+      <button class="btn-ghost" data-go="auth">Log in</button>
+      <button class="btn-primary" data-go="auth" data-tab="signup">Enroll now</button>
+    </div>`;
+  }
+  return `<header><div class="container nav">
+    <div class="logo" data-go="${route==='admin'?'admin':'home'}"><img src="${LOGO}" alt="Fast Lane" style="width:40px;height:40px;border-radius:50%;object-fit:cover"> ${SCHOOL}</div>
+    ${right}
+  </div></header>`;
+}
+
+function viewHTML(){
+  switch(route){
+    case "home": return homeView();
+    case "auth": return authView();
+    case "dashboard": return dashboardView();
+    case "quiz": return quizView();
+    case "final": return finalView();
+    case "certificate": return certView();
+    case "adminLogin": return adminLoginView();
+    case "admin": return adminView();
+    default: return homeView();
+  }
+}
+
+/* ---------- Public site ---------- */
+function homeView(){
+  return `<div class="view">
+    <div class="hero"><div class="container">
+      <img src="${LOGO}" alt="Fast Lane Traffic School" style="width:96px;height:96px;border-radius:50%;object-fit:cover;box-shadow:0 6px 20px rgba(0,0,0,.35);margin-bottom:18px">
+      <span class="pill">Palm Beach County • Florida DHSMV-recognized • Provider: ${PROVIDER}</span>
+      <h1>Clear your ticket. Keep your points. Drive on.</h1>
+      <p class="sub">Complete Florida's Basic Driver Improvement course 100% online, at your own pace, on any device. Fast, state-recognized, and done today.</p>
+      <div class="cta">
+        <button class="btn-primary" data-go="auth" data-tab="signup">Start the course — ${money(COURSE.price)}</button>
+        <button class="btn-ghost" data-go="auth">I already enrolled</button>
+      </div>
+      <div class="trust">
+        <div><b>4 hrs</b>State BDI course</div>
+        <div><b>100%</b>Online & mobile</div>
+        <div><b>Instant</b>Certificate on completion</div>
+        <div><b>4.9★</b>Student rating</div>
+      </div>
+    </div></div>
+
+    <section class="pad"><div class="container">
+      <h2 class="sec">Why drivers choose ${SCHOOL}</h2>
+      <p class="sec-sub">Everything you need to satisfy your requirement — nothing you don't.</p>
+      <div class="grid3">
+        <div class="card"><div class="ic">⚡</div><h3>Go at your pace</h3><p>Start, stop, and resume anytime. Your progress is saved automatically to the exact lesson you left off on.</p></div>
+        <div class="card"><div class="ic">📱</div><h3>Any device</h3><p>Phone, tablet, or computer. No app to download and no software to install — just log in and learn.</p></div>
+        <div class="card"><div class="ic">📜</div><h3>Instant certificate</h3><p>Pass the final exam and download your completion certificate immediately, with a unique certificate number.</p></div>
+        <div class="card"><div class="ic">✅</div><h3>State-recognized</h3><p>Delivered under licensed provider ${PROVIDER}, so your completion counts where it matters.</p></div>
+        <div class="card"><div class="ic">🛟</div><h3>Real support</h3><p>Questions before you buy or while you learn? We're a call or email away, seven days a week.</p></div>
+        <div class="card"><div class="ic">💸</div><h3>Lower insurance</h3><p>Completing driver improvement can qualify you for a multi-year auto insurance discount in Florida.</p></div>
+      </div>
+    </div></section>
+
+    <section class="pad" style="background:#fff">
+      <div class="container" style="text-align:center">
+        <h2 class="sec">Simple, flat pricing</h2>
+        <p class="sec-sub">One price. No hidden fees. Certificate included.</p>
+        <div class="price-wrap">
+          <div class="price feat">
+            <div class="tag">Most popular</div>
+            <div class="amt">${money(COURSE.price)}</div>
+            <div style="color:var(--muted);font-size:14px">Basic Driver Improvement (BDI)</div>
+            <ul>
+              <li>Full 4-hour state course</li>
+              <li>Works on any device</li>
+              <li>Auto-saved progress</li>
+              <li>Instant PDF certificate</li>
+              <li>7-day support</li>
+            </ul>
+            <button class="btn-primary" style="width:100%" data-go="auth" data-tab="signup">Enroll now</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pad"><div class="container" style="text-align:center">
+      <h2 class="sec">Ready in three steps</h2>
+      <p class="sec-sub">From enrolled to certificate in one sitting.</p>
+      <div class="grid3">
+        <div class="card"><div class="ic">1️⃣</div><h3>Enroll & pay</h3><p>Create your account and complete secure checkout in under two minutes.</p></div>
+        <div class="card"><div class="ic">2️⃣</div><h3>Take the course</h3><p>Move through four short modules with a quick quiz after each one.</p></div>
+        <div class="card"><div class="ic">3️⃣</div><h3>Pass & print</h3><p>Ace the final exam and download your certificate on the spot.</p></div>
+      </div>
+    </div></section>
+
+    <footer><div class="container">
+      <p><b>${SCHOOL}</b> — Florida Basic Driver Improvement</p>
+      <p style="margin-top:8px">Course delivered under licensed provider ${PROVIDER}. Completion is reported through the provider to the Florida DHSMV.</p>
+      <p style="margin-top:8px"><a data-go="adminLogin" style="cursor:pointer">Staff / Admin login</a></p>
+      <p style="margin-top:8px;color:#5b6b7d">© ${new Date().getFullYear()} ${SCHOOL}. This is a demonstration platform.</p>
+    </div></footer>
+  </div>`;
+}
+
+/* ---------- Auth ---------- */
+let authTab = "login";
+function authView(){
+  if(ctx.tab) authTab=ctx.tab;
+  return `<div class="view"><div class="auth-wrap"><div class="auth-card">
+    <div class="tabbar">
+      <button class="${authTab==='login'?'active':''}" data-atab="login">Log in</button>
+      <button class="${authTab==='signup'?'active':''}" data-atab="signup">Enroll</button>
+    </div>
+    ${authTab==='login'?`
+      <h2>Welcome back</h2>
+      <p style="color:var(--muted);margin-bottom:22px">Log in to continue your course.</p>
+      <div class="field"><label>Email</label><input id="li_email" type="email" placeholder="you@email.com"></div>
+      <div class="field"><label>Password</label><input id="li_pass" type="password" placeholder="Your password"></div>
+      <button class="btn-primary" style="width:100%" data-act="login">Log in</button>
+      <p class="switch">New here? <a data-atab="signup" style="cursor:pointer">Enroll now</a></p>
+    `:`
+      <h2>Create your account</h2>
+      <p style="color:var(--muted);margin-bottom:22px">Enroll in the ${money(COURSE.price)} Florida BDI course.</p>
+      <div class="field"><label>Full legal name (as on license)</label><input id="su_name" placeholder="Jane Q. Driver"></div>
+      <div class="row2">
+        <div class="field"><label>Driver license #</label><input id="su_dl" placeholder="D123-456-78-901-0"></div>
+        <div class="field"><label>Date of birth</label><input id="su_dob" type="date"></div>
+      </div>
+      <div class="field"><label>Email</label><input id="su_email" type="email" placeholder="you@email.com"></div>
+      <div class="field"><label>Password</label><input id="su_pass" type="password" placeholder="Choose a password"></div>
+      <div class="field"><label>How are you taking the course?</label>
+        <select id="su_type">
+          <option value="home">At home / online</option>
+          <option value="office">In-person class at the office</option>
+        </select>
+      </div>
+      <button class="btn-green" style="width:100%" data-act="signup">Create account →</button>
+      <p class="switch">Already enrolled? <a data-atab="login" style="cursor:pointer">Log in</a></p>
+    `}
+  </div></div></div>`;
+}
+
+/* ---------- Dashboard / lesson viewer ---------- */
+let activeModuleIdx = 0;
+let lessonTimer = null;
+
+function dashboardView(){
+  const u=currentUser();
+  if(!u) return authView();
+  if(!u.enroll.paid) return paywallView(u);
+
+  const prog=courseProgress(u);
+  const m=COURSE.modules[activeModuleIdx];
+  const allModsDone = COURSE.modules.every(x=>u.enroll.modules[x.id]&&u.enroll.modules[x.id].quizPassed);
+
+  // side nav
+  const navItems = COURSE.modules.map((mm,i)=>{
+    const st=u.enroll.modules[mm.id]||{};
+    const done=st.quizPassed;
+    const locked = i>0 && !(u.enroll.modules[COURSE.modules[i-1].id]||{}).quizPassed;
+    return `<li class="${i===activeModuleIdx?'active':''} ${done?'done':''} ${locked?'locked':''}" ${locked?'':`data-mod="${i}"`}>
+      <span class="dot">${done?'✓':(i+1)}</span> ${esc(mm.title)}
+    </li>`;
+  }).join("");
+  const finalLocked = !allModsDone;
+  const finalDone = u.enroll.finalPassed;
+
+  return `<div class="view"><div class="container"><div class="dash">
+    <div class="side">
+      <div class="prog-ring">${ring(prog)}<div class="prog-num">${prog}%</div></div>
+      <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px">Course progress</div>
+      <ul class="mod-nav">
+        ${navItems}
+        <li class="${route==='final'?'active':''} ${finalDone?'done':''} ${finalLocked?'locked':''}" ${finalLocked?'':`data-final="1"`}>
+          <span class="dot">${finalDone?'✓':'★'}</span> Final Exam
+        </li>
+      </ul>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)">
+        Time on course: <b style="color:var(--ink)">${totalMinutes(u)} min</b>
+        ${DB.settings.enforceStateTime?`<br>State requires ${COURSE.stateReqMinutes} min total.`:''}
+      </div>
+    </div>
+
+    <div class="main-panel">${lessonHTML(u,m)}</div>
+  </div></div></div>`;
+}
+
+function lessonHTML(u,m){
+  const st=u.enroll.modules[m.id]||{};
+  return `<div class="lesson">
+    <h1>${esc(m.title)}</h1>
+    <div class="meta"><span>Module ${activeModuleIdx+1} of ${COURSE.modules.length}</span><span>•</span><span>${st.quizPassed?'✓ Completed':'In progress'}</span></div>
+    <div class="lesson-body">${m.body}</div>
+    <div class="lesson-foot">
+      <div class="timer-note" id="timernote">Please review this module. <b><span id="mtimer">0:00</span></b> spent.</div>
+      <button class="btn-primary" id="toquiz" ${st.quizPassed?'':'disabled'}>${st.quizPassed?'Review passed ✓ — Continue':'Continue to quiz'}</button>
+    </div>
+  </div>`;
+}
+
+function startLessonTimer(m){
+  const u=currentUser();
+  if(!u.enroll.modules[m.id]) u.enroll.modules[m.id]=newEnrollment().modules; // guard
+  if(!u.enroll.modules[m.id]||typeof u.enroll.modules[m.id]!=='object'||Array.isArray(u.enroll.modules[m.id]))
+    u.enroll.modules[m.id]={lessonSec:0,quizPassed:false,quizScore:null};
+  const st=u.enroll.modules[m.id];
+  const need = (DB.settings.enforceStateTime ? m.minMinutes*60 : 3); // demo: 3s gate; production: minMinutes
+  if(lessonTimer) clearInterval(lessonTimer);
+  lessonTimer=setInterval(()=>{
+    st.lessonSec=(st.lessonSec||0)+1; persist();
+    const el=document.getElementById("mtimer");
+    if(el){ const s=st.lessonSec; el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,'0'); }
+    const btn=document.getElementById("toquiz");
+    if(btn && !st.quizPassed){
+      if(st.lessonSec>=need){ btn.disabled=false; }
+      const note=document.getElementById("timernote");
+      if(note && st.lessonSec<need) note.innerHTML=`Please keep reading — quiz unlocks in <b>${need-st.lessonSec}s</b>.`;
+      else if(note && !st.quizPassed) note.innerHTML=`<b>✓ Minimum time met.</b> You may take the quiz.`;
+    }
+  },1000);
+}
+
+/* ---------- Quiz ---------- */
+let quizAnswers={};
+function quizView(){
+  const u=currentUser(); const m=COURSE.modules[activeModuleIdx];
+  quizAnswers={};
+  const qs=m.quiz.map((q,i)=>qBlock(q,i)).join("");
+  return `<div class="view"><div class="container" style="max-width:760px;padding:30px 20px">
+    <div class="main-panel quiz">
+      <h1>Quiz — ${esc(m.title)}</h1>
+      <p style="color:var(--muted);margin-bottom:20px">Answer all questions. You need ${COURSE.passScore}% to continue.</p>
+      <div id="qlist">${qs}</div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px">
+        <button class="btn-outline" data-back="1">← Back to lesson</button>
+        <button class="btn-green" data-act="gradeQuiz">Submit answers</button>
+      </div>
+    </div>
+  </div></div>`;
+}
+function qBlock(q,i){
+  return `<div class="q" data-qi="${i}">
+    <div class="qtext">${i+1}. ${esc(q.q)}</div>
+    ${q.opts.map((o,j)=>`<label class="opt" data-opt="${i}-${j}"><input type="radio" name="q${i}" value="${j}"> ${esc(o)}</label>`).join("")}
+  </div>`;
+}
+
+/* ---------- Final exam ---------- */
+function finalView(){
+  const u=currentUser();
+  quizAnswers={};
+  const qs=COURSE.finalExam.questions.map((q,i)=>qBlock(q,i)).join("");
+  return `<div class="view"><div class="container" style="max-width:760px;padding:30px 20px">
+    <div class="main-panel quiz">
+      <h1>Final Exam</h1>
+      <p style="color:var(--muted);margin-bottom:20px">${COURSE.finalExam.questions.length} questions • ${COURSE.finalExam.passScore}% required to pass and earn your certificate.</p>
+      <div id="qlist">${qs}</div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px">
+        <button class="btn-outline" data-go="dashboard">← Back</button>
+        <button class="btn-green" data-act="gradeFinal">Submit final exam</button>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+/* ---------- Paywall ---------- */
+function paywallView(u){
+  if(u.enroll.classType==="office"){
+    return `<div class="view"><div class="container" style="max-width:620px;padding:40px 20px">
+      <div class="main-panel">
+        <h1 style="font-size:26px">In-person class</h1>
+        <p style="color:var(--muted);margin:8px 0 22px">You're registered for the <b>in-person class</b>. Payment is completed when you schedule your class — this classroom computer is just for logging in and taking the course.</p>
+        <div class="banner"><span>🏢 If you're at the front desk and this screen appears, staff will unlock your course from the admin dashboard. Already paid online? A card payment can also be recorded below.</span></div>
+        <button class="btn-outline" style="width:100%;margin-bottom:12px" data-act="showCard">Record a card payment</button>
+        <div id="cardbox" class="hide">${cardFormHTML(u)}</div>
+      </div>
+    </div></div>`;
+  }
+  return `<div class="view"><div class="container" style="max-width:620px;padding:40px 20px">
+    <div class="main-panel">
+      <h1 style="font-size:26px">Complete your enrollment</h1>
+      <p style="color:var(--muted);margin:8px 0 22px">One-time payment of <b>${money(COURSE.price)}</b> unlocks the full Florida BDI course, final exam, and certificate.</p>
+      ${cardFormHTML(u)}
+    </div>
+  </div></div>`;
+}
+function cardFormHTML(u){
+  return `<div class="banner"><span>🔒 <b>Demo checkout</b> — no real card is charged here. Wired to your live Stripe account, this becomes real Stripe Checkout (see the notes I sent you).</span></div>
+    <div class="field"><label>Name on card</label><input id="pay_name" value="${esc(u.name)}"></div>
+    <div class="field"><label>Card number</label><input id="pay_card" placeholder="4242 4242 4242 4242" maxlength="19"></div>
+    <div class="row2">
+      <div class="field"><label>Expiry</label><input id="pay_exp" placeholder="MM/YY" maxlength="5"></div>
+      <div class="field"><label>CVC</label><input id="pay_cvc" placeholder="123" maxlength="4"></div>
+    </div>
+    <button class="btn-green" style="width:100%" data-act="pay">Pay ${money(COURSE.price)} &amp; start course</button>`;
+}
+
+/* ---------- Certificate ---------- */
+function certView(){
+  const u=currentUser();
+  return `<div class="view"><div class="container" style="max-width:640px;padding:40px 20px">
+    <div class="main-panel cert-done">
+      <div class="big">🎉</div>
+      <h1 style="font-size:30px;margin:10px 0">Congratulations, ${esc(u.name.split(" ")[0])}!</h1>
+      <p style="color:var(--muted);font-size:17px">You passed the Florida Basic Driver Improvement course with a final score of <b>${u.enroll.finalScore}%</b>.</p>
+      <div class="banner" style="justify-content:center;margin:24px 0">Certificate No. <b style="margin-left:6px">${esc(u.enroll.certNo)}</b> &nbsp;•&nbsp; Issued ${fmtDate(u.enroll.completedAt)}</div>
+      <button class="btn-primary" data-act="downloadCert">⬇ Download certificate (PDF)</button>
+      <p style="font-size:13px;color:var(--muted);margin-top:18px">Your completion is reported through ${PROVIDER} to the Florida DHSMV. Keep this certificate for your records.</p>
+      <div style="margin-top:20px"><button class="btn-outline" data-go="dashboard">Back to course</button></div>
+    </div>
+  </div></div>`;
+}
+
+/* ---------- Admin ---------- */
+function adminLoginView(){
+  return `<div class="view"><div class="auth-wrap"><div class="auth-card">
+    <h2>Staff / Admin</h2>
+    <p style="color:var(--muted);margin-bottom:22px">Restricted access.</p>
+    <div class="field"><label>Username</label><input id="ad_user" placeholder="admin"></div>
+    <div class="field"><label>Password</label><input id="ad_pass" type="password" placeholder="admin"></div>
+    <button class="btn-primary" style="width:100%" data-act="adminLogin">Log in</button>
+    <p class="switch" style="font-size:12px">Demo credentials: <b>admin / admin</b></p>
+  </div></div></div>`;
+}
+function adminView(){
+  const students=DB.users;
+  const paid=students.filter(s=>s.enroll.paid);
+  const done=students.filter(s=>s.enroll.finalPassed);
+  const revenue=paid.reduce((a,s)=>a+(s.enroll.amount||0),0);
+  const rows = students.map(s=>{
+    const e=s.enroll;
+    const status = e.finalPassed?`<span class="chip g">Completed</span>`
+      : e.paid?`<span class="chip a">In progress</span>`
+      : `<span class="chip r">Unpaid</span>`;
+    const type = e.classType==="office"?`<span class="chip a">In-person</span>`:`<span class="chip g">At home</span>`;
+    const payCell = e.paid ? money(e.amount)+(e.payMethod?`<br><span style="color:var(--muted);font-size:11px">${esc(e.payMethod)}</span>`:'')
+                           : `<button class="btn-outline" style="padding:5px 10px;font-size:12px" data-act="markpaid:${esc(s.email)}">Mark paid</button>`;
+    return `<tr>
+      <td><b>${esc(s.name)}</b><br><span style="color:var(--muted);font-size:12px">${esc(s.email)}</span>
+        <br><a data-act="resetpw:${esc(s.email)}" style="font-size:11px;cursor:pointer">reset password</a></td>
+      <td>${type}</td>
+      <td>${esc(s.dl||'—')}</td>
+      <td>${courseProgress(s)}%</td>
+      <td>${status}</td>
+      <td>${e.finalPassed?e.finalScore+'%':'—'}</td>
+      <td>${e.certNo?esc(e.certNo):'—'}</td>
+      <td>${payCell}</td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">No students yet. Enroll one from the public site or the walk-in box above.</td></tr>`;
+
+  return `<div class="view"><div class="container" style="padding:30px 20px">
+    <h2 class="sec">Admin dashboard</h2>
+    <p class="sec-sub">${SCHOOL} — live enrollment overview</p>
+    <div class="stat-row">
+      <div class="stat"><div class="n">${students.length}</div><div class="l">Total students</div></div>
+      <div class="stat"><div class="n">${paid.length}</div><div class="l">Paid enrollments</div></div>
+      <div class="stat"><div class="n">${done.length}</div><div class="l">Completed</div></div>
+      <div class="stat"><div class="n">${money(revenue)}</div><div class="l">Revenue</div></div>
+    </div>
+    <div class="banner">
+      <label style="display:flex;align-items:center;gap:10px;font-weight:600;margin:0;cursor:pointer">
+        <input type="checkbox" id="enforceTime" ${DB.settings.enforceStateTime?'checked':''} style="width:auto">
+        Enforce full state timing (${COURSE.stateReqMinutes} min total / ${COURSE.modules[0].minMinutes} min per module)
+      </label>
+      <span style="font-size:12px;color:var(--muted)">Off = fast demo pacing (3-second gate per module)</span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px">
+      <button class="btn-outline" data-act="exportCsv">⬇ Export roster (CSV / Excel)</button>
+      <a class="btn-outline" style="text-decoration:none;display:inline-block" href="${CLASS_RESOURCES[3].url}" target="_blank" rel="noopener">📚 Open class materials folder</a>
+    </div>
+
+    <div class="grid3" style="margin-bottom:22px">
+      <div class="card">
+        <h3 style="font-size:16px;margin-bottom:12px">➕ Enroll walk-in (in-person)</h3>
+        <div class="field"><label>Full name</label><input id="wi_name" placeholder="Jane Q. Driver"></div>
+        <div class="field"><label>Email</label><input id="wi_email" type="email" placeholder="student@email.com"></div>
+        <div class="field"><label>License # (optional)</label><input id="wi_dl" placeholder="D123-456-78-901-0"></div>
+        <div class="field"><label>Temp password (optional)</label><input id="wi_pass" placeholder="auto if blank"></div>
+        <button class="btn-green" data-act="enrollWalkin">Enroll & mark paid</button>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px;margin-bottom:12px">👥 Bulk-create accounts</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px">One student per line: <code>Name, email</code>. All marked paid (in-person). Temp passwords auto-generated.</p>
+        <textarea id="bulk" style="width:100%;height:120px;font-family:inherit;font-size:13px;padding:10px;border:1.5px solid var(--line);border-radius:10px" placeholder="John Smith, john@email.com&#10;Maria Diaz, maria@email.com"></textarea>
+        <button class="btn-green" style="margin-top:10px" data-act="bulkCreate">Create accounts</button>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px;margin-bottom:12px">📚 Classroom resources</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px">SDAPP BDI 4HR deck & videos (instructor Drive access).</p>
+        ${CLASS_RESOURCES.map(r=>`<div style="margin-bottom:8px"><a href="${r.url}" target="_blank" rel="noopener" style="font-size:13px">→ ${esc(r.label)}</a></div>`).join("")}
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>Student</th><th>Type</th><th>License #</th><th>Progress</th><th>Status</th><th>Final</th><th>Certificate #</th><th>Paid</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p style="font-size:12px;color:var(--muted);margin-top:16px">Data is stored locally in this browser for the demo. Production would use a shared database so records sync across devices and staff.</p>
+  </div></div>`;
+}
+
+/* ---------- SVG progress ring ---------- */
+function ring(pct){
+  const r=52,c=2*Math.PI*r,off=c-(pct/100)*c;
+  return `<svg width="120" height="120" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="#e3e8ef" stroke-width="12"/>
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="#2a9d3f" stroke-width="12"
+      stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"
+      transform="rotate(-90 60 60)"/>
+  </svg>`;
+}
+
+/* =========================================================
+   EVENT BINDING
+   ========================================================= */
+function bind(){
+  // nav go
+  document.querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{
+    const t=el.getAttribute("data-tab"); go(el.getAttribute("data-go"), t?{tab:t}:{});
+  });
+  document.querySelectorAll("[data-atab]").forEach(el=>el.onclick=()=>{ authTab=el.getAttribute("data-atab"); render(); });
+  document.querySelectorAll("[data-act]").forEach(el=>el.onclick=()=>handle(el.getAttribute("data-act")));
+
+  // module nav
+  document.querySelectorAll("[data-mod]").forEach(el=>el.onclick=()=>{
+    activeModuleIdx=parseInt(el.getAttribute("data-mod")); go("dashboard");
+  });
+  document.querySelectorAll("[data-final]").forEach(el=>el.onclick=()=>go("final"));
+
+  // quiz option highlighting
+  document.querySelectorAll(".opt").forEach(el=>el.onclick=()=>{
+    const [qi]=el.getAttribute("data-opt").split("-");
+    document.querySelectorAll(`.opt[data-opt^="${qi}-"]`).forEach(o=>o.classList.remove("sel"));
+    el.classList.add("sel");
+    el.querySelector("input").checked=true;
+    quizAnswers[qi]=parseInt(el.querySelector("input").value);
+  });
+
+  // continue-to-quiz
+  const tq=document.getElementById("toquiz");
+  if(tq) tq.onclick=()=>{ if(lessonTimer)clearInterval(lessonTimer); go("quiz"); };
+  const back=document.querySelector("[data-back]");
+  if(back) back.onclick=()=>go("dashboard");
+
+  // admin toggle
+  const et=document.getElementById("enforceTime");
+  if(et) et.onchange=()=>{ DB.settings.enforceStateTime=et.checked; persist(); toast(et.checked?"Full state timing enabled":"Demo pacing enabled"); };
+
+  // start lesson timer when on dashboard lesson
+  if(route==="dashboard"){
+    const u=currentUser();
+    if(u&&u.enroll.paid){ startLessonTimer(COURSE.modules[activeModuleIdx]); }
+  } else { if(lessonTimer) clearInterval(lessonTimer); }
+}
+
+/* ---------- Actions ---------- */
+function handle(act){
+  const u=currentUser();
+  if(act==="logout"){ DB.session=null; persist(); go("home"); return; }
+
+  if(act==="signup"){
+    const name=val("su_name"),email=val("su_email").toLowerCase(),pass=val("su_pass");
+    const dl=val("su_dl"),dob=val("su_dob");
+    if(!name||!email||!pass){ toast("Please fill in name, email, and password."); return; }
+    if(DB.users.some(x=>x.email===email)){ toast("That email is already enrolled — try logging in."); return; }
+    const en=newEnrollment(); en.classType=val("su_type")||"home";
+    const user={name,email,pass,dl,dob,enroll:en,createdAt:Date.now()};
+    DB.users.push(user); DB.session=email; persist();
+    activeModuleIdx=0; go("dashboard"); toast("Account created! Complete checkout to begin.");
+    return;
+  }
+  if(act==="login"){
+    const email=val("li_email").toLowerCase(),pass=val("li_pass");
+    const user=DB.users.find(x=>x.email===email&&x.pass===pass);
+    if(!user){ toast("Incorrect email or password."); return; }
+    DB.session=email; persist();
+    // resume: land on first incomplete module
+    let idx=COURSE.modules.findIndex(m=>!(user.enroll.modules[m.id]||{}).quizPassed);
+    activeModuleIdx = idx<0?COURSE.modules.length-1:idx;
+    go("dashboard");
+    if(user.enroll.paid && idx>0) toast("Welcome back — resuming where you left off.");
+    return;
+  }
+  if(act==="showCard"){
+    const box=document.getElementById("cardbox"); if(box){ box.classList.remove("hide"); }
+    bind(); return;
+  }
+  if(act==="pay"){
+    const card=val("pay_card").replace(/\s/g,"");
+    if(card.length<12){ toast("Enter a valid card number (demo: 4242 4242 4242 4242)."); return; }
+    u.enroll.paid=true; u.enroll.amount=COURSE.price; u.enroll.paidAt=Date.now(); u.enroll.payMethod="card";
+    persist(); activeModuleIdx=0; go("dashboard"); toast("Payment successful — course unlocked!");
+    return;
+  }
+  if(act==="enrollWalkin"){
+    const name=val("wi_name"), email=val("wi_email").toLowerCase(), dl=val("wi_dl");
+    if(!name||!email){ toast("Enter the student's name and email."); return; }
+    if(DB.users.some(x=>x.email===email)){ toast("That email already exists."); return; }
+    const en=newEnrollment(); en.classType="office"; en.paid=true; en.amount=COURSE.price; en.paidAt=Date.now(); en.payMethod="front-desk";
+    const tempPass=(val("wi_pass")||"class"+Math.floor(Math.random()*9000+1000));
+    DB.users.push({name,email,pass:tempPass,dl,dob:"",enroll:en,createdAt:Date.now()});
+    persist(); go("admin"); toast(`${name} enrolled & marked paid. Temp password: ${tempPass}`);
+    return;
+  }
+  if(act && act.startsWith("markpaid:")){
+    const email=act.split(":")[1]; const s=DB.users.find(x=>x.email===email);
+    if(s){ s.enroll.paid=true; s.enroll.amount=COURSE.price; s.enroll.paidAt=Date.now(); s.enroll.payMethod="front-desk"; persist(); go("admin"); toast("Marked paid."); }
+    return;
+  }
+  if(act && act.startsWith("resetpw:")){
+    const email=act.split(":")[1]; const s=DB.users.find(x=>x.email===email);
+    if(s){ const np="fl"+Math.floor(Math.random()*9000+1000); s.pass=np; persist(); toast(`New password for ${s.name}: ${np}`); }
+    return;
+  }
+  if(act==="bulkCreate"){
+    const lines=(document.getElementById("bulk").value||"").split("\n").map(l=>l.trim()).filter(Boolean);
+    let added=0;
+    lines.forEach(l=>{
+      const parts=l.split(",").map(p=>p.trim());
+      const name=parts[0], email=(parts[1]||"").toLowerCase();
+      if(!name||!email||DB.users.some(x=>x.email===email)) return;
+      const en=newEnrollment(); en.classType="office"; en.paid=true; en.amount=COURSE.price; en.paidAt=Date.now(); en.payMethod="front-desk";
+      DB.users.push({name,email,pass:"fl"+Math.floor(Math.random()*9000+1000),dl:"",dob:"",enroll:en,createdAt:Date.now()});
+      added++;
+    });
+    persist(); go("admin"); toast(added+" account(s) created.");
+    return;
+  }
+  if(act==="exportCsv"){
+    const hdr=["Name","Email","Type","License","Progress%","Status","FinalScore","CertNo","TimeMin","Paid$","PayMethod","PaidAt"];
+    const rows=DB.users.map(s=>{const e=s.enroll;return [
+      s.name,s.email, e.classType==="office"?"In-person":"At home", s.dl||"",
+      courseProgress(s), e.finalPassed?"Completed":(e.paid?"In progress":"Unpaid"),
+      e.finalScore??"", e.certNo||"", totalMinutes(s), e.paid?e.amount:"", e.payMethod||"",
+      e.paidAt?new Date(e.paidAt).toISOString().slice(0,10):""
+    ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")});
+    const csv=[hdr.join(","),...rows].join("\n");
+    const blob=new Blob([csv],{type:"text/csv"}); const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download="FastLane-roster-"+new Date().toISOString().slice(0,10)+".csv"; a.click();
+    URL.revokeObjectURL(url); toast("Roster exported.");
+    return;
+  }
+  if(act==="gradeQuiz"){ gradeQuiz(); return; }
+  if(act==="gradeFinal"){ gradeFinal(); return; }
+  if(act==="downloadCert"){ makeCertificate(u); return; }
+
+  if(act==="adminLogin"){
+    if(val("ad_user")==="admin"&&val("ad_pass")==="admin"){ go("admin"); }
+    else toast("Invalid admin credentials (demo: admin / admin).");
+    return;
+  }
+}
+function val(id){ const e=document.getElementById(id); return e?e.value.trim():""; }
+
+function gradeQuiz(){
+  const u=currentUser(); const m=COURSE.modules[activeModuleIdx];
+  const total=m.quiz.length; let correct=0;
+  if(Object.keys(quizAnswers).length<total){ toast("Please answer every question."); return; }
+  m.quiz.forEach((q,i)=>{ if(quizAnswers[i]===q.a) correct++; });
+  const score=Math.round((correct/total)*100);
+  revealQuiz(m.quiz);
+  const passed=score>=COURSE.passScore;
+  const st=u.enroll.modules[m.id]||{lessonSec:0}; st.quizScore=score; st.quizPassed=st.quizPassed||passed; u.enroll.modules[m.id]=st; persist();
+  showQuizResult(score,passed,()=>{
+    if(passed){
+      if(activeModuleIdx<COURSE.modules.length-1){ activeModuleIdx++; go("dashboard"); }
+      else { go("dashboard"); toast("All modules done! The Final Exam is unlocked."); }
+    } else { go("quiz"); }
+  });
+}
+function gradeFinal(){
+  const u=currentUser(); const qs=COURSE.finalExam.questions; const total=qs.length; let correct=0;
+  if(Object.keys(quizAnswers).length<total){ toast("Please answer every question."); return; }
+  qs.forEach((q,i)=>{ if(quizAnswers[i]===q.a) correct++; });
+  const score=Math.round((correct/total)*100);
+  revealQuiz(qs);
+  const passed=score>=COURSE.finalExam.passScore;
+  u.enroll.finalScore=score; u.enroll.finalPassed=u.enroll.finalPassed||passed;
+  if(passed&&!u.enroll.certNo){
+    u.enroll.certNo="FLTS-"+Date.now().toString(36).toUpperCase().slice(-6)+"-"+Math.floor(Math.random()*900+100);
+    u.enroll.completedAt=Date.now();
+  }
+  persist();
+  showQuizResult(score,passed,()=>{ if(passed) go("certificate"); else go("final"); });
+}
+function revealQuiz(qs){
+  qs.forEach((q,i)=>{
+    document.querySelectorAll(`.opt[data-opt^="${i}-"]`).forEach((o,j)=>{
+      o.style.pointerEvents="none";
+      if(j===q.a) o.classList.add("correct");
+      else if(quizAnswers[i]===j) o.classList.add("wrong");
+    });
+  });
+}
+function showQuizResult(score,passed,cont){
+  const bg=document.createElement("div"); bg.className="modal-bg";
+  bg.innerHTML=`<div class="modal" style="text-align:center">
+    <div style="font-size:50px">${passed?'✅':'📚'}</div>
+    <h2 class="${passed?'pass':'fail'}">${passed?'Passed!':'Not quite'}</h2>
+    <div class="score ${passed?'pass':'fail'}" style="font-size:48px;font-weight:800">${score}%</div>
+    <p style="color:var(--muted);margin:8px 0 20px">${passed?'Great work — keep going.':'You need '+COURSE.passScore+'% to continue. Review and try again.'}</p>
+    <button class="btn-primary" id="contBtn" style="width:100%">${passed?'Continue →':'Try again'}</button>
+  </div>`;
+  document.body.appendChild(bg);
+  document.getElementById("contBtn").onclick=()=>{ bg.remove(); cont(); };
+}
+
+/* ---------- Certificate PDF ---------- */
+function makeCertificate(u){
+  const { jsPDF } = window.jspdf;
+  const doc=new jsPDF({orientation:"landscape",unit:"pt",format:"letter"});
+  const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight();
+  // border
+  doc.setDrawColor(13,27,42); doc.setLineWidth(6); doc.rect(24,24,W-48,H-48);
+  doc.setDrawColor(255,183,3); doc.setLineWidth(2); doc.rect(36,36,W-72,H-72);
+  // header
+  doc.setFont("helvetica","bold"); doc.setTextColor(13,27,42); doc.setFontSize(30);
+  doc.text(SCHOOL,W/2,90,{align:"center"});
+  doc.setFontSize(13); doc.setTextColor(120,120,120); doc.setFont("helvetica","normal");
+  doc.text("CERTIFICATE OF COMPLETION",W/2,116,{align:"center"});
+  // body
+  doc.setFontSize(14); doc.setTextColor(60,60,60);
+  doc.text("This certifies that",W/2,165,{align:"center"});
+  doc.setFont("helvetica","bold"); doc.setFontSize(32); doc.setTextColor(13,27,42);
+  doc.text(u.name,W/2,205,{align:"center"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(14); doc.setTextColor(60,60,60);
+  doc.text("has successfully completed the",W/2,240,{align:"center"});
+  doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.setTextColor(251,133,0);
+  doc.text("Florida Basic Driver Improvement Course (4-Hour BDI)",W/2,268,{align:"center"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(12); doc.setTextColor(60,60,60);
+  doc.text(`with a final exam score of ${u.enroll.finalScore}%`,W/2,292,{align:"center"});
+  // details row
+  doc.setFontSize(11); doc.setTextColor(90,90,90);
+  const y=350;
+  doc.text(`Certificate No: ${u.enroll.certNo}`,90,y);
+  doc.text(`Date Completed: ${fmtDate(u.enroll.completedAt)}`,90,y+20);
+  doc.text(`Driver License: ${u.dl||"—"}`,90,y+40);
+  doc.text(`Provider of Record: ${PROVIDER}`,W-90,y,{align:"right"});
+  doc.text(`Reported to: Florida DHSMV`,W-90,y+20,{align:"right"});
+  // signature line
+  doc.setDrawColor(13,27,42); doc.setLineWidth(1);
+  doc.line(W-260,H-90,W-90,H-90);
+  doc.setFontSize(10); doc.text("Authorized Signature",W-175,H-74,{align:"center"});
+  doc.setFont("helvetica","italic"); doc.setFontSize(9); doc.setTextColor(140,140,140);
+  doc.text("This is a demonstration certificate generated by the Fast Lane Traffic School LMS.",W/2,H-50,{align:"center"});
+  doc.save(`FastLane-Certificate-${u.enroll.certNo}.pdf`);
+  toast("Certificate downloaded.");
+}
+
+/* ---------- kiosk idle auto-logout ---------- */
+let idleTimer=null;
+function resetIdle(){
+  if(idleTimer) clearTimeout(idleTimer);
+  idleTimer=setTimeout(()=>{
+    if(DB.session && route!=="admin"){
+      DB.session=null; persist(); go("home"); toast("Signed out after inactivity (kiosk safety).");
+    }
+  }, IDLE_LOGOUT_MIN*60*1000);
+}
+["click","keydown","mousemove","touchstart"].forEach(ev=>document.addEventListener(ev,resetIdle,{passive:true}));
+resetIdle();
+
+/* ---------- boot ---------- */
+render();
+</script>
+</body>
+</html>
